@@ -5,7 +5,7 @@
  *      Author: Pascal Kuthe
  */
 #include "TaskManager.hpp"
-
+#pragma once
 
 //Std includes
 #include "stdint.h"
@@ -36,10 +36,10 @@ bool isNull(Task& task){
 	work *									SpecialThreads	;	// Special Implementation of code that always needs to be executed by the same Thread (Threads index = Special Threads Index) For expample: Rendering
 	uint8_t									SpecialAmount	;
 	bool	 								Flag			;	// A collection of Flags
-#define TickFlag 	1											// To tell whether or not a Tick update has occurred (started Tick!= Tick)
-#define RunningFlag 2											// If the Engine is Running
-#define FwHeavyLoadFlag 4								// If the double amount of Threads is being used for not Thread finishing Tasks
-
+#define TickFlag 		1										// To tell whether or not a Tick update has occurred (started Tick!= Tick)
+#define RunningFlag 	2										// If the Engine is Running
+#define FwHeavyLoadFlag 4										// If the double amount of Threads is being used for not Thread finishing Tasks
+#define TickUpdateFlag  8										// To prevent Threads from doing shit during a Tick update
 
 bool getFlag(uint8_t p_Flag){
 	return Flag&p_Flag;
@@ -63,12 +63,30 @@ void HeavyFreeTaskLoad(){
 
 Task& grapWork(bool highPriorty){
 	int i = 1;
-	while(i < Tasks->size()){
-		Task& tmp = getTask(i);
-		if(!(isNull(tmp)||tmp.IsDone()||tmp.IsWorking()||tmp.getDependency()==-1||tmp.getTicksLeft()>highPriorty)){
-			return tmp;
-		}
-		i++;
+	highPriorty++;
+	if(highPriorty-1){
+		bool highest = 0;
+		int highestindex = -1;
+		while(i < Tasks->size()){
+				Task& tmp = getTask(i);
+				if(!(isNull(tmp)||tmp.IsDone()||tmp.IsWorking()||tmp.getDependency()!=-1||tmp.getTicksLeft()>highPriorty)){
+					if(tmp.getTicksLeft()>highest){
+						highest = tmp.getTicksLeft();
+						highestindex = i;
+					}
+				}
+				i++;
+			}
+		if(highestindex >= 0)
+		return getTask(highestindex);
+	}else{
+		while(i < Tasks->size()){
+				Task& tmp = getTask(i);
+				if(!(isNull(tmp)||tmp.IsDone()||tmp.IsWorking()||tmp.getDependency()!=-1||tmp.getTicksLeft()>1)){
+					return tmp;
+				}
+				i++;
+			}
 	}
 	return (*nulltask);
 }
@@ -84,6 +102,9 @@ void Work(uint8_t Ticks){
 			Ticks--;
 			continue;
 		}
+		while(getFlag(TickUpdateFlag)){
+			grapWork(0).run();
+		}
 		grapWork(Ticks).run();
 	}
 }
@@ -91,12 +112,11 @@ void Work(uint8_t Ticks){
 void Work(){
 	static int Workers;
 	int id = Workers++;
-	bool currentTick = getFlag(TickFlag);
 	while(getFlag(RunningFlag)){
-		if(currentTick != getFlag(TickFlag)){
-			continue;
+		while(getFlag(TickUpdateFlag)){
+				grapWork(0).run();
 		}
-		grapWork(id < FreeThreadCount).run();
+		grapWork(FreeThreadCount>id?FreeThreadCount-id+2:0).run();
 
 	}
 }

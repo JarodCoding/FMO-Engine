@@ -1,0 +1,4 @@
+unsigned int AvailbeThreads = std::thread::hardware_concurrency();
+
+
+
