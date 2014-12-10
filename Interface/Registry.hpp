@@ -8,19 +8,25 @@
 #ifndef REGISTRY_HPP_
 #define REGISTRY_HPP_
 #include "string"
-#include "System.hpp"
 namespace Registry{
-	uint32_t registerSystem(std::string name);
-	uint64_t registerData(uint32_t system, std::string name);
+	uint16_t registerSystem(std::string name);
+	uint64_t registerData(uint16_t system, std::string name);
 	uint64_t registerData(std::string system, std::string name);
+	uint64_t registerData(std::string name);
 
-	void unregisterSystem(uint32_t system);
+	void unregisterSystem(uint16_t system);
 	void unregisterData(uint64_t data);
+	void unregisterData(uint16_t id, std::string name);
 	void unregisterData(std::string system, std::string name);
 
-	uint32_t getSystemID(std::string name);
-	uint64_t getDataID(uint32_t system,std::string name);
-	uint64_t getDataID(std::string system,std::string name);
+	uint16_t getSystemID(std::string name);
+	uint64_t getDataID(uint16_t system,std::string name);
+	uint64_t getLocalDataID(std::string name);
+	
+	class System;
+	System* getSystem(uint16_t id);
+	System* getSystem(std::String name)
+	
 }
 
 
