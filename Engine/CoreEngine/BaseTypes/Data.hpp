@@ -6,15 +6,17 @@
  */
 
 #include "string"
-#include "stdint-gcc.h"
+#include "stdint.h"
 #include "string"
+#include <algorithm>
+#include <memory.h>
 #ifndef DATA_HPP_
 #define DATA_HPP_
 namespace BaseTypes{
 class Data {
 public:
 
-	inline Data(uint64_t localID,uint16_t systemID,void * data,uint datasize): id(id),system(systemID),size(datasize),changed(false),data(malloc(datasize)){
+	inline Data(uint64_t localID,uint16_t systemID,void * data,uint datasize): id(localID),system(systemID),size(datasize),changed(false),data(malloc(datasize)){
 		memcpy(this->data, data, datasize);
 	}
 
@@ -22,28 +24,28 @@ public:
 
 
 	inline ~Data(){
-		delete data;
+		free( data);
 	}
     inline void updateData(uint64_t datasize){
         size = datasize;
     }
 	inline void updateData(void *newData,uint64_t datasize){
 	    if(newData!=data){
-		delete data;
+		free( data);
 		data = malloc(datasize);
 	    memcpy(this->data, data, datasize);
 	    }
-	    updateData(datasize)
+	    updateData(datasize);
 	}
 
 	inline uint64_t getlocalId(){
 		return id;
 	}
 	inline uint64_t getGlobalID(){
-        int tmp = getlocalId();
-        tmp<<16;
-        tmp>>16;
-        tmp|=(system>>48)
+		uint64_t tmp = getlocalId();
+        tmp = tmp<<16;
+        tmp =  tmp>>16;
+        tmp|=(((uint64_t) system)<<48);
         return tmp;
 	    
 	}
@@ -64,7 +66,7 @@ public:
 		return tmp;
 	}
 	inline bool operator ==(const Data& d) const{
-		return d.getGlobalID() == getGlobalID();
+		return d.system == system && d.id == id;
 	}
 private:
 	uint64_t id;

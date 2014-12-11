@@ -25,7 +25,7 @@ namespace Registry{
 	
 	class System;
 	System* getSystem(uint16_t id);
-	System* getSystem(std::String name)
+	System* getSystem(std::string name);
 	
 }
 

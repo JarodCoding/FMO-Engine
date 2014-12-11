@@ -6,6 +6,7 @@
  */
 #include "../BaseTypes/Data.hpp"
 #include "list"
+#include "vector"
 #include "boost/lockfree/queue.hpp"
 #ifndef UNIVERSAL_HPP_
 #define UNIVERSAL_HPP_
@@ -18,10 +19,10 @@ class Object{
 	friend class Scene;
 	protected:
 
-	inline Object(Scene * p_scene,std::string p_name):scene(p_scene),parent(nullptr),name(p_name),DataUpdateQue(),childs(){
+	inline Object(Scene * p_scene,std::string p_name):scene(p_scene),parent(nullptr),name(p_name),childs(){
 
 	}
-	inline Object(Object * p_parent,std::string p_name):scene(p_parent->scene),parent(p_parent),name(p_name),DataUpdateQue(),childs(){
+	inline Object(Object * p_parent,std::string p_name):scene(p_parent->scene),parent(p_parent),name(p_name),childs(){
 
 	}
 
@@ -51,7 +52,7 @@ public:
 		Scene  *scene ;
 		Object *parent;
 		std::string name;
-		std::list<boost::lockfree::queue<BaseTypes::Data>> DataUpdateQue;
+		boost::lockfree::queue<BaseTypes::Data*> DataUpdateQue;
 		std::vector<Object *> childs;
 	};
 
@@ -80,8 +81,7 @@ class Scene{
 
 	private:
 		// std::vector<IScene*> Extensions;
-			std::vector<boost::lockfree::queue<BaseTypes::Data>> DataUpdateQue;
-
+		boost::lockfree::queue<BaseTypes::Data*> DataUpdateQue;
 		std::vector<Object *> Objects;
 	};
 
