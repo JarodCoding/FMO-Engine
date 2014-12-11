@@ -31,8 +31,9 @@ public:
 
 		std::vector<Object *> getChilds();
 
-		Object * addChild(std::string name);
+		uint_fast32_t addChild(std::string name);
 		void removeChild(std::string name);
+		void removeChild(uint_fast32_t);
 		void removeChild(Object * pointer);
 
 
@@ -43,7 +44,7 @@ public:
 		// void reduce(IObject* extension);
 
 		void tick();
-		void postData(BaseTypes::Data data);
+		void postData(BaseTypes::Data *data);
 
 		private:
 
@@ -70,19 +71,20 @@ class Scene{
 		void removeObject(Object * pointer);
 
 
-		// std::vector<IScene *> getExtensions( );
+		std::vector<IScene *> getExtensions();
 
-		// IScene * extend(ISystem& 	system);
-		// void		reduce(IScene * extension );
+		IScene * extend(uint16_t SystemID);
+		void	 reduce(uint16_t SystemID);
 
 		void tick();
-		void postData(BaseTypes::Data data);
+		void postData(BaseTypes::Data *data);
 
 
 	private:
-		// std::vector<IScene*> Extensions;
+		std::vector<IScene*> Extensions;
 		boost::lockfree::queue<BaseTypes::Data*> DataUpdateQue;
 		std::vector<Object *> Objects;
+		uint64_t **ObservingData;	//TODO ObjectOrientiert
 	};
 
 }

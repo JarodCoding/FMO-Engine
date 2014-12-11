@@ -8,20 +8,22 @@
 #include "Registry.hpp"
 #include "stdint.h"
 #include "string"
+#include "System.hpp"
 namespace Registry{
     std::unordered_map<std::string,uint16_t>* SystemNames;
     std::unordered_map<std::string,uint64_t>* DataNames;
     
-    System** systems;
+    ISystem** systems;
 
     void setup(uint16_t size){
         SystemNames = new std::unordered_map<std::string,uint16_t>();
         DataNames   = new std::unordered_map<std::string,uint64_t>();
-        systems = new System*[size];
+        systems = new ISystem*[size];
     }
-	uint16_t registerSystem(std::string name){
+	uint16_t registerSystem(std::string name,ISystem* system){
 	    static uint16_t i;
 	    SystemNames->emplace(name,i++);
+	    systems[i] = system;
 	    return i;
 	}
 	uint64_t registerData(std::string name){
@@ -39,7 +41,15 @@ namespace Registry{
 	    return DataNames->at(name);
 	}
 
-	
+
+	void unregisterSystem(std::string name){
+		SystemNames->erase(name);
+	}
+
+	void unregisterData(std::string name){
+		DataNames->erase(name);
+
+	}
 	
 uint64_t getDataID(std::string system,std::string name){
 		return getDataID(getSystemID(system),name);
