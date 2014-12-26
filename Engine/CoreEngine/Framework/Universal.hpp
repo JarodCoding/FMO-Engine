@@ -7,6 +7,7 @@
 #include "../BaseTypes/Data.hpp"
 #include "list"
 #include "vector"
+#include "System.hpp"
 #include "boost/lockfree/queue.hpp"
 #ifndef UNIVERSAL_HPP_
 #define UNIVERSAL_HPP_
@@ -66,7 +67,7 @@ class Scene{
 
 		std::vector<Object *> getObjects() ;
 
-		Object * addObject   (std::string name);
+		Universal::Object * addObject   (std::string name);
 		void removeObject(std::string name);
 		void removeObject(Object * pointer);
 
