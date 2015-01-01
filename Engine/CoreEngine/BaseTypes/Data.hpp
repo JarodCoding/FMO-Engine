@@ -16,58 +16,23 @@ namespace BaseTypes{
 class Data {
 public:
 
-	inline Data(uint64_t localID,uint16_t systemID,void * data,uint datasize): id(localID),system(systemID),size(datasize),changed(false),data(malloc(datasize)){
-		memcpy(this->data, data, datasize);
-	}
-
-//	inline Data(Data& data): id(data.getId()),data(data.getData()){}
+	 Data(uint64_t localID,uint16_t systemID,void * data,uint datasize): id(localID),system(systemID),size(datasize),changed(false),data(malloc(datasize));
 
 
-	inline ~Data(){
-		free( data);
-	}
-    inline void updateData(uint64_t datasize){
-        size = datasize;
-    }
-	inline void updateData(void *newData,uint64_t datasize){
-	    if(newData!=data){
-		free( data);
-		data = malloc(datasize);
-	    memcpy(this->data, data, datasize);
-	    }
-	    updateData(datasize);
-	}
 
-	inline uint64_t getlocalId(){
-		return id;
-	}
-	inline uint64_t getGlobalID(){
-		uint64_t tmp = getlocalId();
-        tmp = tmp<<16;
-        tmp =  tmp>>16;
-        tmp|=(((uint64_t) system)<<48);
-        return tmp;
-	    
-	}
-	inline void* getData(){
-		return data;
-	}
-	inline uint16_t getSystem(){
-		return system;
-	}
+	~Data();
+    void updateData(uint64_t datasize);
+	void updateData(void *newData,uint64_t datasize);
+
+	uint64_t getlocalId();
+	uint64_t getGlobalID();
+	void* getData();
+	uint16_t getSystem();
 	//wheater the value has been changed since the kast hasChanged() call
-	inline bool getHasChanged(){
-	    return changed;
-	}
+	bool getHasChanged();
 	//wheater the value has been changed since the kast hasChanged() call
-	inline bool hasChanged(){
-	    bool tmp = getHasChanged();
-	    changed = false;
-		return tmp;
-	}
-	inline bool operator ==(const Data& d) const{
-		return d.system == system && d.id == id;
-	}
+	bool hasChanged();
+	bool operator ==(const Data& d) const;
 private:
 	uint64_t id;
 	uint16_t system;
