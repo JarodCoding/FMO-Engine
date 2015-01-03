@@ -16,8 +16,7 @@ namespace BaseTypes{
 class Data {
 public:
 
-	 Data(uint64_t localID,uint16_t systemID,void * data,uint datasize): id(localID),system(systemID),size(datasize),changed(false),data(malloc(datasize));
-
+	 Data(uint64_t localID,uint16_t systemID,void * data,uint datasize);
 
 
 	~Data();

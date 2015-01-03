@@ -1,8 +1,8 @@
 #include "Data.hpp"
-
+#include "stdint.h"
 namespace BaseTypes{
     //Initaliazing of Data:
-        Data::Data(uint64_t localID,uint16_t systemID,void * data,uint datasize):                                                     id(localID),system(systemID),size(datasize),changed(false),data(malloc(datasize)){
+        Data::Data(uint64_t localID,uint16_t systemID,void * data,uint datasize): id(localID),system(systemID),size(datasize),changed(false),data(malloc(datasize)){
          	memcpy(this->data, data, datasize);
         }
         
