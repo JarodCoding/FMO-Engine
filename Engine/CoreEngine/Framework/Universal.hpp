@@ -54,7 +54,7 @@ public:
 		Scene  *scene ;
 		Object *parent;
 		std::string name;
-		boost::lockfree::queue<BaseTypes::Data*> DataUpdateQue;
+		boost::lockfree::queue<void*> DataUpdateQue;
 		std::vector<Object *> childs;
 	};
 
@@ -67,7 +67,7 @@ class Scene{
 
 		std::vector<Object *> getObjects() ;
 
-		Universal::Object * addObject   (std::string name);
+		uint_fast32_t addObject(std::string name);
 		void removeObject(std::string name);
 		void removeObject(Object * pointer);
 
@@ -83,7 +83,7 @@ class Scene{
 
 	private:
 		std::vector<IScene*> Extensions;
-		boost::lockfree::queue<BaseTypes::Data*> DataUpdateQue;
+		boost::lockfree::queue<void*> DataUpdateQue;
 		std::vector<Object *> Objects;
 		uint64_t **ObservingData;	//TODO ObjectOrientiert
 	};

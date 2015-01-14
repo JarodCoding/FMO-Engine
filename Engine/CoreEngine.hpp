@@ -5,9 +5,10 @@
  *      Author: Pascal Kuthe
  */
 
-#include "Display.hpp"
 #include "GL/glew.h"
 #include "string"
+
+#include "Display.hpp.old"
 #include "SDL2/SDL.h"
 
 #ifndef COREENGINE_HPP_

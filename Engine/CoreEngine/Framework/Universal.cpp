@@ -7,25 +7,28 @@
 
 #include "Universal.hpp"
 #include "boost/lockfree/queue.hpp"
-	class UpdateObjectData{
+	struct UpdateObjectData{
 			public:
-				inline UpdateObjectData(Universal::Object* obj):object(obj){
+				UpdateObjectData(void * obj):object((Universal::Object*)obj){
 
 				}
+				void operator()(void *data){
+					object->postData((BaseTypes::Data *)data);
+				}
+			private:
 				Universal::Object* object;
-				inline void operator()(BaseTypes::Data *data){
 
-				}
 		};
-	class UpdateSceneData{
+	struct UpdateSceneData{
 			public:
-				inline UpdateSceneData(Universal::Scene* scn):scene(scn){
+				UpdateSceneData(void* scn):scene((Universal::Scene*)scn){
 
 				}
-				Universal::Scene* scene;
-				inline void operator()(BaseTypes::Data *data){
-
+				void operator()(void *data){
+					scene->postData((BaseTypes::Data*)data);
 				}
+			private:				Universal::Scene* scene;
+
 		};
 namespace  Universal{
 Object::~Object(){
@@ -49,7 +52,7 @@ Object::~Object(){
 
 			}
 	}
-	//Use this each ID is (obviously) unique. You get the ID by using addChild(std::string name)
+	//Use this!Eeach ID is (obviously) unique. You get the ID by using addChild(std::string name)
 	void Object::removeChild(uint_fast32_t id){
 		delete childs[id];
 		childs.erase(childs.begin()+id);
@@ -73,13 +76,14 @@ Object::~Object(){
 	}
 
 	void Object::tick(){
-		DataUpdateQue.consume_all(UpdateData(this));
+		UpdateObjectData *tmp = new UpdateObjectData(this);
+		DataUpdateQue.consume_all(*tmp);
 
 	}
 	void Object::postData(BaseTypes::Data *data){
 
 	}
-	Scene::Scene():DataUpdateQue(),Objects(){
+	Scene::Scene():DataUpdateQue(),Objects(),ObservingData(){
 
 	}
 	Scene::~Scene(){
@@ -88,7 +92,7 @@ Object::~Object(){
 	uint_fast32_t Scene::addObject(std::string name){
 		Object * tmp = new Object(this,name);
 		Objects.push_back(tmp);
-		return tmp;
+		return Objects.size();
 	}
 	//Deprecated: Names can potentially be doubled and only the first match will be removed but someone may intend exactly that behavior so it is in there..
 	void Scene::removeObject(std::string name){
@@ -104,11 +108,7 @@ Object::~Object(){
 			}
 	}
 
-	//Use this each ID is (obviously) unique. You get the ID by using addChild(std::string name)
-	void Object::removeObject(uint_fast32_t id){
-		delete childs[id];
-		childs.erase(childs.begin()+id);
-	}
+
 
 	//Pointers can't be double so this is safe calling
 	void Scene::removeObject(Object * ptr){
@@ -129,10 +129,11 @@ Object::~Object(){
 	}
 
 	void Scene::tick(){
-		DataUpdateQue.consume_all(UpdateData(this));
+		UpdateSceneData *tmp = new  UpdateSceneData((void*)this);
+		DataUpdateQue.consume_all(*tmp);
 	}
 	void Scene::postData(BaseTypes::Data* data){
-		DataUpdateQue.push(data);
+		DataUpdateQue.push((void*)data);
 	}
 }
 

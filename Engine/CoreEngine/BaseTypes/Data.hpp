@@ -27,9 +27,9 @@ public:
 	uint64_t getGlobalID();
 	void* getData();
 	uint16_t getSystem();
-	//wheater the value has been changed since the kast hasChanged() call
+	//wheater the value has been changed since the last hasChanged() call
 	bool getHasChanged();
-	//wheater the value has been changed since the kast hasChanged() call
+	//wheater the value has been changed since the last hasChanged() call
 	bool hasChanged();
 	bool operator ==(const Data& d) const;
 private:

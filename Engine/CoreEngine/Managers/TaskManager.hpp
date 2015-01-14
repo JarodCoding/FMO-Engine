@@ -5,7 +5,7 @@
  *      Author: Pascal Kuthe
  */
 #include "boost/thread.hpp"
-
+#include "boost/thread/mutex.hpp"
 
 #include <stdint.h>
 

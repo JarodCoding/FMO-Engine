@@ -13,11 +13,12 @@ namespace BaseTypes{
             size = datasize;
         }
         void Data::updateData(void *newData,uint64_t datasize){
-	        if(newData!=data){
+	        if(newData!=data)
 		        free( data);
 		    data = malloc(datasize);
 	        memcpy(this->data, data, datasize);
 	    }
+
         uint64_t Data::getlocalId(){
 		    return id;
 	    }
@@ -48,4 +49,4 @@ namespace BaseTypes{
 	    }
 	}
 
-}
+

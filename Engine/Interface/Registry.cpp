@@ -10,6 +10,7 @@
 #include "string"
 #include "System.hpp"
 namespace Registry{
+
     std::unordered_map<std::string,uint16_t>* SystemNames;
     std::unordered_map<std::string,uint64_t>* DataNames;
     
