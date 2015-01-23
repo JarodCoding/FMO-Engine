@@ -21,34 +21,52 @@ public:
 	INode(INode &parent);
 	virtual ~INode();
 
-	virtual void init()=0;
+	void init();
+	virtual void UserInit()=0;
+	virtual void TypeInit()=0;
+	void DataInit(un);
+
 
 	void syncData(BaseTypes::Data*);
 
-	template<typename T>
-	int postDataChange(std::string name,T &value);
+	int postDataChange(std::string name);
+	int postDataChange(unsigned int id );
+
 	int postDataChange(std::string name,uint64_t newSize);
-	int postDataChange(unsigned int id,uint64_t newSize);
-	int postDataChange(unsigned int id,void * value,uint64_t newSize);
+	int postDataChange(unsigned int id ,uint64_t newSize);
+
+	int postDataChange(unsigned int id  ,void * value,uint64_t newSize);
 	int postDataChange(std::string name ,void * value,uint64_t newSize);
+
+
+	template<class T>
+	inline int postDataChange(unsigned int id ,T * value){
+		if(id>dataSize)return -1;
+		BaseTypes::PointerData<T> *tmp = data[id];
+		tmp->update(value);
+		return 0;
+	}
+	template<class T>
+	inline int postDataChange(std::string name ,T * value){
+		return postDataChange(translateToID(name));
+	}
+
 
 
 
 	int translateToID(std::string);
 
-	template<typename T>
-	unsigned int  registerDataInterest(std::string name ,T &reference   );
-			 int  registerDataInterest(std::string name ,void *reference);
-			 void registerPossibleChange(unsigned int id	     	    );
+	unsigned int  registerDataInterest(std::string name ,BaseTypes::Data *refernce   );
+	void registerPossibleChange(unsigned int id	     	    );
 
 	unsigned int getDataOfinterest(BaseTypes::Data **);	//returnValue = pointer to array of Values; return: Size of That array
 	unsigned int getPossibleChanges(unsigned int *   );	//returnValue = pointer to array of Values; return: Size of That array
 
 protected:
     	       INode  &parent;
+    	   	uint64_t dataSize;
     BaseTypes::Data  **data  ;
-    std::string 	  *names ;
-
+    std::deque		   names ;
 };
 class IScene: public INode{
 	friend class ISystem;
@@ -63,7 +81,7 @@ public:
 private:
 	std::vector<IObject> children;
 	Universal::Scene& parent;
-	BaseTypes::Data **data;
+
 };
 
 class ISystem{
@@ -86,10 +104,10 @@ protected:
 
 public:
 	virtual ~ IObject();
-	virtual void syncData(BaseTypes::Data data);
+	virtual void syncData(BaseTypes::Data *data);
 	virtual int getDataOfinterest(uint64_t *returnValue);	//returnValue = pointer to array of Values; return: Size of That array
 	virtual int getPossibleChanges(uint64_t *returnValue);	//returnValue = pointer to array of Values; return: Size of That array
-	virtual void postDataChange(BaseTypes::Data data);
+	virtual void postDataChange(BaseTypes::Data *data);
 private:
 	Universal::Object& parent;
 
