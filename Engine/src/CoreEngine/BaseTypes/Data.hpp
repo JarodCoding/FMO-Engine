@@ -5,13 +5,14 @@
  *      Author: Pascal Kuthe
  */
 
+#ifndef DATA_HPP_
+#define DATA_HPP_
 #include "string"
 #include "stdint.h"
 #include "string"
 #include <algorithm>
 #include <memory.h>
-#ifndef DATA_HPP_
-#define DATA_HPP_
+
 namespace BaseTypes{
 class Data {
 public:

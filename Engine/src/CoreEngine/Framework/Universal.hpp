@@ -4,13 +4,14 @@
  *  Created on: Sep 14, 2014
  *      Author: Pascal Kuthe
  */
+#ifndef UNIVERSAL_HPP_
+#define UNIVERSAL_HPP_
 #include "../BaseTypes/Data.hpp"
 #include "list"
 #include "vector"
 #include "System.hpp"
 #include "boost/lockfree/queue.hpp"
-#ifndef UNIVERSAL_HPP_
-#define UNIVERSAL_HPP_
+
 
 namespace Universal{
 class Scene;

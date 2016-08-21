@@ -1,16 +1,17 @@
-compile=g++ -c -Wall -O3 -std=c++11 -o /bin
-objects=bin/CoreEngine/Managers/TaskManager.o bin/CoreEngine/Framework/Universal.o bin/CoreEngine/BaseTypes/Data.o bin/Interface/System.o bin/Interface/Registry.o
+seperator=\\
+compile=g++ -c -Wall -O3 -std=c++11 -o
 
+all: CoreEngine Interface;
 
-all: CoreEngine Interface;g++ -o bin/RealTimeStars $(objects)
 CoreEngine: Managers Framework BaseTypes;
-    
-Managers:CoreEngine/Managers/TaskManager;
 
-Framework:CoreEngine/Framework/Universal;
+Managers:CoreEngine$(seperator)Managers$(seperator)TaskManager;
+
+Framework:CoreEngine$(seperator)Framework$(seperator)Universal;
   
-BaseTypes:CoreEngine/BaseTypes/Data;
+BaseTypes:CoreEngine$(seperator)BaseTypes$(seperator)Data;
     
-Interface:Interface/System Interface/Registry;
+Interface:Interface$(seperator)System Interface$(seperator)Registry;
 
-%:;$(compile)$*.o $*.cpp
+%:; -mkdir bin$(seperator)$(@D)
+	$(compile) bin'$(seperator)'$*.o src'$(seperator)'$*.cpp

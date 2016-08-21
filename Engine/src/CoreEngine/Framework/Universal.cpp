@@ -6,7 +6,6 @@
  */
 
 #include "Universal.hpp"
-#include "boost/lockfree/queue.hpp"
 	struct UpdateObjectData{
 			public:
 				UpdateObjectData(void * obj):object((Universal::Object*)obj){

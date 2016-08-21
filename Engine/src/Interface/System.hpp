@@ -8,8 +8,8 @@
 #ifndef SYSTEM_HPP_
 #define SYSTEM_HPP_
 #include "vector"
-#include "../CoreEngine/BaseTypes/Data.hpp"
-#include "../CoreEngine/Managers/TaskManager.hpp"
+#include "deque"
+
 namespace Universal{
 	class Object;
 	class Scene;

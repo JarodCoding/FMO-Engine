@@ -14,9 +14,6 @@
 
 #include "iostream"
 
-//Boost includes
-#include "boost/shared_ptr.hpp"
-#include "boost/thread.hpp"
 
 
 namespace TaskManager{
@@ -36,9 +33,6 @@ bool isNull(Task& task){
 	work *									SpecialThreads	;	// Special Implementation of code that always needs to be executed by the same Thread (Threads index = Special Threads Index) For expample: Rendering
 	uint8_t									SpecialAmount	;
 	bool	 								Flag			;	// A collection of Flags
-#define TickFlag 		1										// To tell whether or not a Tick update has occurred (started Tick!= Tick)
-#define RunningFlag 	2										// If the Engine is Running
-#define FwHeavyLoadFlag 4										// If the double amount of Threads is being used for not Thread finishing Tasks
 #define TickUpdateFlag  8										// To prevent Threads from doing shit during a Tick update
 
 bool getFlag(uint8_t p_Flag){
@@ -48,15 +42,6 @@ void updateFlag(uint8_t p_Flag){
 	if(Flag&p_Flag)Flag &= !p_Flag;
 	else Flag |= p_Flag;
 }
-void HeavyFreeTaskLoad(){
-	if(!getFlag(FwHeavyLoadFlag)){
-		FreeThreadCount = (ThreadAmount-SpecialAmount)/2;
-		Flag|= FwHeavyLoadFlag;
-	}else{
-		FreeThreadCount=(ThreadAmount-SpecialAmount)%2==0?(ThreadAmount-SpecialAmount)/4:(ThreadAmount-SpecialAmount)/3	;
-		Flag &= !FwHeavyLoadFlag;
-	}
-
 
 }
 //Thread Internal Methods

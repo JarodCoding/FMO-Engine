@@ -4,13 +4,14 @@
  *  Created on: Aug 30, 2014
  *      Author: Pascal Kuthe
  */
+#ifndef TASKMANAGER_HPP_
+#define TASKMANAGER_HPP_
 #include "boost/thread.hpp"
 #include "boost/thread/mutex.hpp"
 
 #include <stdint.h>
 
-#ifndef TASKMANAGER_HPP_
-#define TASKMANAGER_HPP_
+
 
 
 
