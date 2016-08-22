@@ -6,91 +6,89 @@
  */
 #ifndef UNIVERSAL_HPP_
 #define UNIVERSAL_HPP_
-#include "../BaseTypes/Data.hpp"
-#include "list"
+
+#include "ExtensionType.hpp"
+
 #include "vector"
-#include "System.hpp"
-#include "boost/lockfree/queue.hpp"
 
+namespace Data{
+	typedef uint_fast64_t NodeID	 ;
+	typedef uint_fast8_t  ExtnesionID;
 
-namespace Universal{
-class Scene;
+	class Node;
+	class Extension;
 
+	namespace Universal{
 
-class Object{
-	friend class Scene;
-	protected:
+		class Node;
+		class Extension;
 
-	inline Object(Scene * p_scene,std::string p_name):scene(p_scene),parent(nullptr),name(p_name),childs(){
+		class Node: public Syncable{
+			  friend class Extension;
+			  friend class Data::Node;
+			  friend class Data::Extension;
+			protected:
+				Data::Node * actualNodes;
+				NodeID id;
+			public:
+				NodeID getID();
+				Data::Node *access();
+		};
+		class Extension: public Syncable{
+			  friend class Node;
+			  friend class Data::Node;
+			  friend class Data::Extension;
+
+			protected:
+				Extension(Universal::Node&,ExtensionTypeID type);
+				Node& Node;
+				Data::Extension *actualExtensions;
+				ExtensionTypeID Type;
+			public:
+				~Extension();
+				Node& getNode();
+				Data::Node *access();
+		};
 
 	}
-	inline Object(Object * p_parent,std::string p_name):scene(p_parent->scene),parent(p_parent),name(p_name),childs(){
+	class Node: public Syncable{
+		  friend class Extension;
+		  friend class Universal::Node;
+		  friend class Universal::Extension;
+		protected:
+			Universal::Node& Universal;
+			std::vector<Universal::Node&> children;
+			Universal::Node& parent;
+			std::vector<Extension&> extensions;
+			Node(Universal::Node& Universal);
 
-	}
+		public:
+			~Node();
+			void extend(ExtensionTypeID);
+			void reduce(ExtensionTypeID);
+			Extension& getExtension(ExtensionTypeID);
+			Universal::Node& getUniversal();
+			Universal::Node& getParent();
+			Universal::Node& getChild(NodeID id);
+			Universal::Node& addChild();
+			Universal::Node& removeChild(NodeID id);
 
-public:
-		virtual ~Object();
-
-		std::vector<Object *> getChilds();
-
-		uint_fast32_t addChild(std::string name);
-		void removeChild(std::string name);
-		void removeChild(uint_fast32_t);
-		void removeChild(Object * pointer);
-
-
-
-		// std::vector<IObject *> getExtensions();
-
-		// IObject* extend(ISystem& system);
-		// void reduce(IObject* extension);
-
-		void tick();
-		void postData(BaseTypes::Data *data);
-
-		private:
-
-		// std::vector<IObject *> Extensions;
-
-		Scene  *scene ;
-		Object *parent;
-		std::string name;
-		boost::lockfree::queue<void*> DataUpdateQue;
-		std::vector<Object *> childs;
 	};
+	class Extension: public Syncable{
+		  friend class Node;
+		  friend class Universal::Node;
+		  friend class Universal::Extension;
+		protected:
+			Universal::Node& Universal;
+			Extension(Universal::Node& Universal);
+			virtual void init() = 0;
+		public:
+			virtual ~Extension();
+			Universal::Node& getUniversal();
 
-
-class Scene{
-	public:
-		Scene();
-		virtual ~Scene();
-
-
-		std::vector<Object *> getObjects() ;
-
-		uint_fast32_t addObject(std::string name);
-		void removeObject(std::string name);
-		void removeObject(Object * pointer);
-
-
-		std::vector<IScene *> getExtensions();
-
-		IScene * extend(uint16_t SystemID);
-		void	 reduce(uint16_t SystemID);
-
-		void tick();
-		void postData(BaseTypes::Data *data);
-
-
-	private:
-		std::vector<IScene*> Extensions;
-		boost::lockfree::queue<void*> DataUpdateQue;
-		std::vector<Object *> Objects;
-		uint64_t **ObservingData;	//TODO ObjectOrientiert
 	};
 
 }
-
 
 
 #endif /* UNIVERSAL_HPP_ */
