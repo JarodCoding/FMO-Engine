@@ -14,12 +14,12 @@ namespace Data {
 class Syncable: public Clonable{
 public:
 	Syncable();
-	virtual void sync(Syncable&) = 0;
+	virtual void sync(Clonable&) = 0;
 	void syncAll() ;
-	void notify(Syncable&) ;
+	void notify(Clonable&) ;
 
 protected:
-	boost::lockfree::queue<Syncable *> changesLeft;
+	boost::lockfree::queue<Clonable *> changesLeft;
 };
 
 } /* namespace Data */

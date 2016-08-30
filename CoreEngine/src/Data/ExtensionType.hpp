@@ -14,8 +14,10 @@ namespace Data{
 	typedef Data::Extension *(*ExtensionInitFunction)(Universal::Extension);
 
 	namespace ExtensionType{
-	ExtensionTypeID registerExtensionType(ExtensionInitFunction);
+	ExtensionTypeID registerExtensionType(ExtensionInitFunction,std::string);
 	ExtensionInitFunction getInitFunction(ExtensionTypeID id);
+	ExtensionTypeID getRuntimeID(std::string);
+
 }
 }
 

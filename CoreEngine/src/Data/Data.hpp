@@ -10,6 +10,7 @@
  #include <stdint.h>
 #include "Syncable.hpp"
 #include "vector"
+#include <memory>
 
 namespace Data{
 	typedef uint_fast64_t NodeID	 ;
@@ -63,9 +64,9 @@ namespace Data{
 		  friend class Universal::Extension;
 		protected:
 			Universal::Node& Universal;
-			std::vector<Universal::Node> children;
+			std::vector<std::shared_ptr<Universal::Node>> children;
 			Universal::Node& parent;
-			std::vector<Universal::Extension> extensions;
+			std::vector<std::shared_ptr<Universal::Extension>> extensions;
 			Node(Universal::Node& Universal);
 
 		public:

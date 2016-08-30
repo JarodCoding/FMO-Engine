@@ -16,8 +16,8 @@ void Syncable::syncAll(){
 	}
 
 }
-void Syncable::notify(Syncable &changedVersion){
-	changesLeft.push((Syncable  *)changedVersion.clone());
+void Syncable::notify(Clonable &changedVersion){
+	changesLeft.push(changedVersion.clone());
 }
 Syncable::Syncable(): changesLeft(){
 
