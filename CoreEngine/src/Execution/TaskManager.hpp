@@ -6,7 +6,7 @@
  */
 #ifndef TASKMANAGER_HPP_
 #define TASKMANAGER_HPP_
-#include "boost/thread.hpp"
+/*#include "boost/thread.hpp"
 #include "boost/thread/mutex.hpp"
 
 #include <stdint.h>
@@ -89,6 +89,6 @@ typedef void (*work)();
 }
 
 
-
+*/
 
 #endif /* TASKMANAGER_HPP_ */

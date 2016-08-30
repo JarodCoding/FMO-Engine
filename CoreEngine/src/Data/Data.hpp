@@ -7,13 +7,14 @@
 #ifndef UNIVERSAL_HPP_
 #define UNIVERSAL_HPP_
 
-#include "ExtensionType.hpp"
-
+ #include <stdint.h>
+#include "Syncable.hpp"
 #include "vector"
 
 namespace Data{
 	typedef uint_fast64_t NodeID	 ;
 	typedef uint_fast8_t  ExtnesionID;
+	typedef uint_fast32_t ExtensionTypeID;
 
 	class Node;
 	class Extension;
@@ -22,8 +23,11 @@ namespace Data{
 
 		class Node;
 		class Extension;
+	}
+	typedef Data::Extension *(*ExtensionInitFunction)(Universal::Extension);
+	namespace Universal{
 
-		class Node: public Syncable{
+		class Node{
 			  friend class Extension;
 			  friend class Data::Node;
 			  friend class Data::Extension;
@@ -33,33 +37,35 @@ namespace Data{
 			public:
 				NodeID getID();
 				Data::Node *access();
+				void populateChanges(Data::Extension& changes) ;
 		};
-		class Extension: public Syncable{
+		class Extension{
 			  friend class Node;
 			  friend class Data::Node;
 			  friend class Data::Extension;
 
 			protected:
-				Extension(Universal::Node&,ExtensionTypeID type);
-				Node& Node;
+				Extension(Universal::Node&,ExtensionTypeID type,ExtensionInitFunction);
+				Universal::Node& Node;
 				Data::Extension *actualExtensions;
 				ExtensionTypeID Type;
 			public:
 				~Extension();
-				Node& getNode();
-				Data::Node *access();
+				Universal::Node& getNode();
+				Data::Node &access();
+				void populateChanges(Data::Node& changes) ;
 		};
 
 	}
-	class Node: public Syncable{
+	class Node: public Syncable {
 		  friend class Extension;
 		  friend class Universal::Node;
 		  friend class Universal::Extension;
 		protected:
 			Universal::Node& Universal;
-			std::vector<Universal::Node&> children;
+			std::vector<Universal::Node> children;
 			Universal::Node& parent;
-			std::vector<Extension&> extensions;
+			std::vector<Universal::Extension> extensions;
 			Node(Universal::Node& Universal);
 
 		public:
@@ -72,9 +78,12 @@ namespace Data{
 			Universal::Node& getChild(NodeID id);
 			Universal::Node& addChild();
 			Universal::Node& removeChild(NodeID id);
+			virtual void sync(Syncable&);
+			virtual char* getTypeName();
+
 
 	};
-	class Extension: public Syncable{
+	class Extension: public Syncable {
 		  friend class Node;
 		  friend class Universal::Node;
 		  friend class Universal::Extension;

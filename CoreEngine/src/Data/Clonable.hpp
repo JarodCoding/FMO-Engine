@@ -12,7 +12,9 @@ namespace Data {
 
 class Clonable {
 public:
-	virtual Clonable& clone() = 0;
+	virtual ~Clonable();
+	virtual Clonable *clone() = 0;
+	virtual void clone(Clonable *dest) = 0;
 	virtual char* getTypeName() = 0;
 };
 

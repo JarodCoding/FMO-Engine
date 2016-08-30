@@ -5,7 +5,7 @@
  *      Author: Pascal Kuthe
  */
 #include "TaskManager.hpp"
-#pragma once
+/*#pragma once
 
 //Std includes
 #include "stdint.h"
@@ -224,7 +224,7 @@ void removeTask(TaskID id){
 	    bool running = true;
 	    int i = FreeIds->size();
 		while(running&&	/*To prevent invinit loops*/i>= 0){	// Just in case this is buggy...
-				current--;
+		/*		current--;
 				current /= 2;
 				i--;
 			if(FreeIds->at(current)<id){
@@ -406,3 +406,4 @@ Task::~Task(){
 int main(){
 
 }
+*/

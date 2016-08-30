@@ -6,16 +6,20 @@
  */
 
 #include "Syncable.hpp"
+#include <string.h>
 
 namespace Data {
-
-Syncable::Syncable() {
-	// TODO Auto-generated constructor stub
+void Syncable::syncAll(){
+	Syncable *tmp;
+	while(changesLeft.pop(tmp)){
+		sync(*tmp);
+	}
 
 }
-
-Syncable::~Syncable() {
-	// TODO Auto-generated destructor stub
+void Syncable::notify(Syncable &changedVersion){
+	changesLeft.push((Syncable  *)changedVersion.clone());
 }
+Syncable::Syncable(): changesLeft(){
 
+}
 } /* namespace Data */
