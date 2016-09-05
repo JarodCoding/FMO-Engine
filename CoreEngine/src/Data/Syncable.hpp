@@ -15,7 +15,7 @@ namespace Data {
 class Syncable: public Clonable{
 public:
 	Syncable();
-	virtual void sync(Property&) = 0;
+	virtual void sync(Property *) = 0;
 	void syncAll() ;
 	void notify(Property&) ;
 

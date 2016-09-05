@@ -12,7 +12,8 @@ namespace Data {
 void Syncable::syncAll(){
 	Property *tmp;
 	while(changesLeft.pop(tmp)){
-		sync(*tmp);
+		sync(tmp);
+		delete tmp;
 	}
 
 }

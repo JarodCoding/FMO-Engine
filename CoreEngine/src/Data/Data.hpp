@@ -11,11 +11,15 @@
 #include "Syncable.hpp"
 #include "vector"
 #include <memory>
+#define populate_new_extension pne
+#define populate_remove_extension pre
+#define populate_new_child pnc
+#define populate_remove_child rmc
 
 namespace Data{
 	typedef uint_fast64_t NodeID	 ; // creation thread id + InThread UUID (incremental
-	typedef uint_fast8_t  ExtnesionID;
 	typedef uint_fast32_t ExtensionTypeID;
+	typedef uint_fast8_t LocalID;
 
 	class Node;
 	class Extension;
@@ -36,14 +40,14 @@ namespace Data{
 				Data::Node * actualNodes;
 				NodeID id;
 			public:
+			  	Node(NodeID);
 				NodeID getID();
-				Data::Node *access();
+				Data::Node &access();
 				void populateChanges(Data::Property& changes) ;
-				void populateInvaledation() ;
-				void populateNewChild() ;
-				void populateRemovedChild() ;
-				void populateExtension() ;
-				void populateReduction() ;
+ 				void populateNewChild(std::shared_ptr<Universal::Node>) ;
+				void populateRemovedChild(LocalID id) ;
+				void populateExtension(std::shared_ptr<Universal::Extension>) ;
+				void populateReduction(ExtensionTypeID) ;
 
 
 
@@ -56,7 +60,7 @@ namespace Data{
 			protected:
 				Extension(Universal::Node&,ExtensionTypeID type,ExtensionInitFunction);
 				Universal::Node& Node;
-				Data::Extension *actualExtensions;
+				Data::Extension **actualExtensions;
 				ExtensionTypeID Type;
 			public:
 				~Extension();
@@ -73,22 +77,28 @@ namespace Data{
 		protected:
 			Universal::Node& Universal;
 			std::vector<std::shared_ptr<Universal::Node>> children;
-			Universal::Node& parent;
+			Universal::Node *parent;
 			std::vector<std::shared_ptr<Universal::Extension>> extensions;
 			Node(Universal::Node& Universal);
 
 		public:
+			Node(Universal::Node *,std::shared_ptr<Universal::Node>);
 			~Node();
 			void extend(ExtensionTypeID);
 			void reduce(ExtensionTypeID);
 			Extension& getExtension(ExtensionTypeID);
 			Universal::Node& getUniversal();
 			Universal::Node& getParent();
+			Universal::Node& getChild(LocalID id);
 			Universal::Node& getChild(NodeID id);
 			Universal::Node& addChild();
+			Universal::Node& addChild(NodeID id);
+			Universal::Node& removeChild(LocalID id);
 			Universal::Node& removeChild(NodeID id);
-			virtual void sync(Syncable&);
+			virtual void sync(Property *);
 			virtual char* getTypeName();
+			virtual Clonable* clone();
+			virtual void clone(Clonable *);
 
 
 	};
@@ -97,9 +107,9 @@ namespace Data{
 		  friend class Universal::Node;
 		  friend class Universal::Extension;
 		protected:
-			Universal::Node& Universal;
-			Extension(Universal::Node& Universal);
-			virtual void init() = 0;
+			Universal::Node& Node;
+			Universal::Extension& Universal;
+			Extension(Universal::Node&,Universal::Extension&);
 		public:
 			virtual ~Extension();
 			Universal::Node& getUniversal();

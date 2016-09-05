@@ -12,12 +12,12 @@
 #include "Data.hpp"
 namespace Data{
 	typedef uint_fast32_t ExtensionTypeID;
-	typedef Data::Extension *(*ExtensionInitFunction)(Universal::Extension);
+	typedef Data::Extension *(*ExtensionInitFunction)(Universal::Node&,Universal::Extension&);
 
 	namespace ExtensionType{
-	ExtensionTypeID registerExtensionType(ExtensionInitFunction,std::string);
-	ExtensionInitFunction getInitFunction(ExtensionTypeID id);
-	ExtensionTypeID getRuntimeID(std::string);
+	extern ExtensionTypeID registerExtensionType(ExtensionInitFunction,std::string);
+	extern ExtensionInitFunction getInitFunction(ExtensionTypeID id);
+	extern ExtensionTypeID getRuntimeID(std::string);
 
 }
 }
