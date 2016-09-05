@@ -10,14 +10,14 @@
 
 namespace Data {
 void Syncable::syncAll(){
-	Syncable *tmp;
+	Property *tmp;
 	while(changesLeft.pop(tmp)){
 		sync(*tmp);
 	}
 
 }
-void Syncable::notify(Clonable &changedVersion){
-	changesLeft.push(changedVersion.clone());
+void Syncable::notify(Property &changedVersion){
+	changesLeft.push((Property *)changedVersion.clone());
 }
 Syncable::Syncable(): changesLeft(){
 

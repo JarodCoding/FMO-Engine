@@ -3,7 +3,7 @@ compile=g++ -c -Wall -O3 -std=c++11 -o
 
 all: Data Execution;
 
-Data:Data$(seperator)Data Data$(seperator)Syncable Data$(seperator)ExtensionType;
+Data:Data$(seperator)Data Data$(seperator)Syncable Data$(seperator)ExtensionType Data$(seperator)Property;
   
 Execution:Execution$(seperator)TaskManager Executione$(seperator)Task Execution$(seperator)StateManager Executione$(seperator)Module;
     

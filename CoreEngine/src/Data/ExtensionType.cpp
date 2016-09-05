@@ -5,9 +5,10 @@
  *      Author: Jarod Kuthe
  */
 #include "ExtensionType.hpp"
+
+#include "Data.hpp"
 #include "vector"
 #include "string"
-#include "Data.hpp"
 
 
 namespace Data{
@@ -23,7 +24,7 @@ namespace Data{
 			return ExtensionTypes[id];
 		}
 		ExtensionTypeID getRuntimeID(std::string name){
-			int i = 0;
+			unsigned int i = 0;
 			while(i < names.size()){
 				if(names[i].compare(name))return i;
 				i++;

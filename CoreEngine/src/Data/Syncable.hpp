@@ -9,18 +9,21 @@
 #define COREENGINE_SRC_DATA_SYNCABLE_HPP_
 #include "boost/lockfree/queue.hpp"
 #include "Clonable.hpp"
+#include "Property.hpp"
 namespace Data {
 
 class Syncable: public Clonable{
 public:
 	Syncable();
-	virtual void sync(Clonable&) = 0;
+	virtual void sync(Property&) = 0;
 	void syncAll() ;
-	void notify(Clonable&) ;
+	void notify(Property&) ;
 
 protected:
-	boost::lockfree::queue<Clonable *> changesLeft;
+	boost::lockfree::queue<Property *> changesLeft;
 };
+
+
 
 } /* namespace Data */
 

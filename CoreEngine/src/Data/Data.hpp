@@ -13,7 +13,7 @@
 #include <memory>
 
 namespace Data{
-	typedef uint_fast64_t NodeID	 ;
+	typedef uint_fast64_t NodeID	 ; // creation thread id + InThread UUID (incremental
 	typedef uint_fast8_t  ExtnesionID;
 	typedef uint_fast32_t ExtensionTypeID;
 
@@ -38,7 +38,15 @@ namespace Data{
 			public:
 				NodeID getID();
 				Data::Node *access();
-				void populateChanges(Data::Extension& changes) ;
+				void populateChanges(Data::Property& changes) ;
+				void populateInvaledation() ;
+				void populateNewChild() ;
+				void populateRemovedChild() ;
+				void populateExtension() ;
+				void populateReduction() ;
+
+
+
 		};
 		class Extension{
 			  friend class Node;
@@ -54,7 +62,7 @@ namespace Data{
 				~Extension();
 				Universal::Node& getNode();
 				Data::Node &access();
-				void populateChanges(Data::Node& changes) ;
+				void populateChanges(Data::Property& changes) ;
 		};
 
 	}
