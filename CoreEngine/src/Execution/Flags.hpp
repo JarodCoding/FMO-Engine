@@ -10,7 +10,7 @@
 
 namespace Thread{
 	#define ThreadIDSize 6;
-	extern int Amount;
+	uint_fast8_t Amount = 2;
 }
 
 

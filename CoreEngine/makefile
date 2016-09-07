@@ -1,11 +1,16 @@
+compile=g++ -c -Wall -O3 -std=c++14 -o
+link=g++ -o
 seperator=\\
-compile=g++ -c -Wall -O3 -std=c++11 -o
 
-all: Data Execution;
+bin=bin$(seperator);
+OBJS=bin$(seperator)Data$(seperator)Data.o bin$(seperator)Data$(seperator)Syncable.o bin$(seperator)Data$(seperator)ExtensionType.o bin$(seperator)Data$(seperator)Property.o bin$(seperator)Test$(seperator)DataTest.o
 
-Data:Data$(seperator)Data Data$(seperator)Syncable Data$(seperator)ExtensionType Data$(seperator)Property;
-  
-Execution:Execution$(seperator)TaskManager Executione$(seperator)Task Execution$(seperator)StateManager Executione$(seperator)Module;
-    
-%:; -mkdir bin$(seperator)$(@D)
-	$(compile) bin'$(seperator)'$*.o src'$(seperator)'$*.cpp
+all: CoreEngine;
+
+CoreEngine: $(OBJS)
+	$(link) bin$(seperator)Test.exe $(OBJS)	
+
+
+$(OBJS): bin$(seperator)%.o:src$(seperator)$(seperator_src)%.cpp
+	-mkdir $(@D)
+	$(compile) $@ $<

@@ -15,16 +15,27 @@ namespace Data {
 template <class T> class ClonableWrapper: public Clonable {
 public:
 	T data;
-	ClonableWrapper(T data);
-	virtual ~ClonableWrapper();
-	void upate(T data);
-	virtual Clonable *clone();
-	virtual void clone(Clonable *dest);
-	char* getTypeName();
+	inline ClonableWrapper(T p_data):data(p_data){
+
+	}
+	inline void upate(T p_data){
+		data = p_data;
+	}
+	inline Clonable *clone(){
+		return new ClonableWrapper(T(data));
+
+	}
+	inline void clone(Clonable *cdest){
+		if(cdest->getTypeName().compare(getTypeName()))return;
+		ClonableWrapper *dest = (ClonableWrapper *) cdest;
+		dest->data = T(data);
+	}
+	inline std::string getTypeName(){
+		return "ClonableWrapper";
+	}
 private:
 
 };
 
 } /* namespace Data */
-
-#endif /* COREENGINE_SRC_DATA_CLONABLEWRAPPER_HPP_ */
+#endif

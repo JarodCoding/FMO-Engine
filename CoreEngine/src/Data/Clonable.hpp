@@ -7,15 +7,15 @@
 
 #ifndef COREENGINE_SRC_DATA_CLONABLE_HPP_
 #define COREENGINE_SRC_DATA_CLONABLE_HPP_
-
+#include "string"
 namespace Data {
 
 class Clonable {
 public:
-	virtual ~Clonable();
+	virtual ~Clonable() = default;
 	virtual Clonable *clone() = 0;
 	virtual void clone(Clonable *dest) = 0;
-	virtual char* getTypeName() = 0;
+	virtual std::string getTypeName() = 0;
 };
 
 } /* namespace Data */

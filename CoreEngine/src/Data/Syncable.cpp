@@ -7,7 +7,6 @@
 
 #include "Syncable.hpp"
 #include <string.h>
-
 namespace Data {
 void Syncable::syncAll(){
 	Property *tmp;
@@ -18,9 +17,10 @@ void Syncable::syncAll(){
 
 }
 void Syncable::notify(Property &changedVersion){
+
 	changesLeft.push((Property *)changedVersion.clone());
 }
-Syncable::Syncable(): changesLeft(){
+Syncable::Syncable(): changesLeft(0){
 
 }
 } /* namespace Data */

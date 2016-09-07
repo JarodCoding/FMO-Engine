@@ -20,7 +20,7 @@ public:
 	void notify(Property&) ;
 
 protected:
-	boost::lockfree::queue<Property *> changesLeft;
+	boost::lockfree::queue<Property *,boost::lockfree::fixed_sized<false> > changesLeft;
 };
 
 

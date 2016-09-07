@@ -19,7 +19,7 @@ namespace Data{
 		Clonable * data;
 		virtual Clonable *clone();
 		virtual void clone(Clonable *dest);
-		virtual char* getTypeName();
+		std::string getTypeName();
 
 	};
 }
