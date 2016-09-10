@@ -18,6 +18,9 @@ public:
 	inline ClonableWrapper(T p_data):data(p_data){
 
 	}
+	inline ~ClonableWrapper(){
+
+	}
 	inline void upate(T p_data){
 		data = p_data;
 	}

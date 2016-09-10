@@ -26,7 +26,7 @@ namespace Data{
 		ExtensionTypeID getRuntimeID(std::string name){
 			unsigned int i = 0;
 			while(i < names.size()){
-				if(names[i].compare(name))return i;
+				if(names[i]==name)return i;
 				i++;
 			}
 			return -1;

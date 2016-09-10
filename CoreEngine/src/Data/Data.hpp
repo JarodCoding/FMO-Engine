@@ -93,7 +93,7 @@ namespace Data{
 			void addChild(std::shared_ptr<Universal::Node>);
 			std::shared_ptr<Universal::Node> getChildOwnership(NodeID id);
 		public:
-			Node(Universal::Node *parent,Universal::Node& Universal);
+			Node(Universal::Node *parent,Universal::Node& Universal,NodeID id);
 		  	~Node() = default;
 			void extend(ExtensionTypeID);
 			void reduce(ExtensionTypeID);

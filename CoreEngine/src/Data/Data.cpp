@@ -13,10 +13,9 @@
 
 namespace Data{
 	unsigned int ThreadID = 0; //TODO get actual thread id
-
+	NodeID currentID = 0;
 	std::unique_ptr<Universal::Node> topNode = std::make_unique<Universal::Node>(0,nullptr);
 	NodeID nextNodeID(){
-		static NodeID currentID = 0;
 		return __sync_add_and_fetch (&currentID,1);
 
 	}
@@ -31,7 +30,7 @@ namespace Data{
 		Node::Node(NodeID ID,Universal::Node *parent):actualNodes (reinterpret_cast<Data::Node *>( new RawNode[Thread::Amount]))
 {
 			for(uint_fast8_t i = 0;i < Thread::Amount;i++){
-			    new(&actualNodes[i]) Data::Node(parent,*this);
+			    new(&actualNodes[i]) Data::Node(parent,*this,ID);
 			}
 		}
 		Node::~Node(){
@@ -63,39 +62,31 @@ namespace Data{
 				ClonableWrapper<std::shared_ptr<Universal::Extension>> * tmp = new ClonableWrapper<std::shared_ptr<Universal::Extension>>(NewExtension);
 				Property res = Property(populate_new_extension,tmp);
 				populateChanges(res);
-				delete tmp;
 			}
 			void Node::populateReduction(ExtensionTypeID ID){
 				ClonableWrapper<ExtensionTypeID> * tmp = new ClonableWrapper<ExtensionTypeID>(ID);
 				Property res = Property(populate_remove_extension,tmp);
 				populateChanges(res);
-				delete tmp;
 			}
 			void Node::populateNewChild(std::shared_ptr<Node> NewChild){
 				ClonableWrapper<std::shared_ptr<Node>> * tmp =new ClonableWrapper<std::shared_ptr<Node>>(NewChild);
 				Property res = Property(populate_new_child,tmp);
-
 				populateChanges(res);
-
-				delete tmp;
 			}
 			void Node::populateRemovedChild(NodeID id){
 				ClonableWrapper<NodeID> * tmp = new ClonableWrapper<NodeID>(id);
 				Property res = Property(populate_remove_child,tmp);
 				populateChanges(res);
-				delete tmp;
 			}
 			void Node::populateMove(Node * newParent){
 				ClonableWrapper<Node *> * tmp = new ClonableWrapper<Node *>(newParent);
 				Property res = Property(populate_move_node,tmp);
 				populateChanges(res);
-				delete tmp;
 			}
 			void Node::populateNewID(NodeID newID){
 				ClonableWrapper<NodeID> * tmp = new ClonableWrapper<NodeID>(newID);
 				Property res = Property(populate_new_id,tmp);
 				populateChanges(res);
-				delete tmp;
 			}
 
 
@@ -142,7 +133,7 @@ namespace Data{
 
 	//Node
 
-	Node::Node(Universal::Node *p_parent,Universal::Node& p_universal):parent(p_parent),Universal(p_universal),children(),extensions(),ID(nextNodeID()){}
+	Node::Node(Universal::Node *p_parent,Universal::Node& p_universal,NodeID id):parent(p_parent),Universal(p_universal),children(),extensions(),ID(id){}
 
 	void Node::extend(ExtensionTypeID type){
 		std::shared_ptr<Universal::Extension> newExtension = std::make_shared<Universal::Extension>(Universal,type);
@@ -194,8 +185,8 @@ namespace Data{
 		Universal::Node& Node::getUniversal(){
 			return Universal;
 		}
-		Universal::Node *Node::getChild(NodeID id){
-			return children.at(id).get();
+		 Universal::Node *Node::getChild(NodeID id){
+			 return children.at(id).get();
 		}
 		std::shared_ptr<Universal::Node> Node::getChildOwnership(NodeID id){
 			return children.at(id);
@@ -227,17 +218,18 @@ namespace Data{
 			return ID;
 		}
 		void Node::sync(Property *prop){
-			if(prop->name.compare(populate_new_extension)){
+
+			if(prop->name==populate_new_child){
+							local_addChild(((ClonableWrapper<std::shared_ptr<Universal::Node>> *)prop->data)->data);
+			}else if(prop->name==populate_new_extension){
 				local_extend(((ClonableWrapper<std::shared_ptr<Universal::Extension>> *)prop->data)->data);
-			}else if(prop->name.compare(populate_remove_extension)){
+			}else if(prop->name==populate_remove_extension){
 				local_reduce(((ClonableWrapper<ExtensionTypeID> *)prop->data)->data);
-			}else if(prop->name.compare(populate_new_child)){
-				local_addChild(((ClonableWrapper<std::shared_ptr<Universal::Node>> *)prop->data)->data);
-			}else if(prop->name.compare(populate_remove_child)){
+			}else if(prop->name==populate_remove_child){
 				local_removeChild(((ClonableWrapper<NodeID> *)prop->data)->data);
-			}else if(prop->name.compare(populate_move_node)){
+			}else if(prop->name==populate_move_node){
 				parent = (((ClonableWrapper<Universal::Node *> *)prop->data)->data);
-			}else if(prop->name.compare(populate_new_id)){
+			}else if(prop->name==populate_new_id){
 				ID = ((ClonableWrapper<NodeID> *)prop->data)->data;
 			}
 		}

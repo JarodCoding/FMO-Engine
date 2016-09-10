@@ -1,5 +1,4 @@
 #include "../Data/Data.hpp"
-#include "iostream"
 
 int main(){
 	Data::Universal::Node &topNode = Data::getTopNode();
@@ -9,6 +8,6 @@ int main(){
 	topNode.access().syncAll();
 	Data::ThreadID = 0;
 	topNode.access().syncAll();
-	topNode.access().getChild(2);
+	topNode.access().getChild(1);
 	return 0;
 }
