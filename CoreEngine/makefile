@@ -1,4 +1,4 @@
-compile=g++ -c -Wall -O3 -std=c++14
+compile=g++ -c -Wall -std=c++14
 link=g++
 seperator=\\
 
@@ -7,9 +7,13 @@ OBJS=bin$(seperator)Data$(seperator)Data.o bin$(seperator)Data$(seperator)Syncab
 TestOBJS=bin$(seperator)Test$(seperator)DataTest.o
 
 all: debug;
+release: compile += -Ofast
+release: link += -Ofast
+release: CoreEngine
+	$(link) -o bin$(seperator)CoreEngine.dll $(OBJS) //TODO implement proper dll creation and entry functions
 
-debug: compile += -g3
-debug: link += -g3
+debug: compile += -Og-g3
+debug: link += -Og -g3
 debug: CoreEngine $(TestOBJS)
 	$(link) -o bin$(seperator)Test.exe $(OBJS) $(TestOBJS)
 

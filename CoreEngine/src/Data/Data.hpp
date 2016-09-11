@@ -14,11 +14,12 @@
 #include <unordered_map>
 #include <map>
 #define populate_new_extension "pne"
-#define populate_remove_extension "pre"
+#define populate_remove_extension "prme"
 #define populate_new_child "pnc"
-#define populate_remove_child "rmc"
-#define populate_move_node "mon"
-#define populate_new_id "nid"
+#define populate_remove_child "prmc"
+#define populate_move_node "pmn"
+#define populate_new_node_id "pnni"
+#define populate_move_extension "pme"
 
 namespace Data{
 	extern unsigned int ThreadID; //TODO get actual thread id
@@ -39,18 +40,23 @@ namespace Data{
 
 		class Node{
 			private:
+			  friend class Extension;
+			  friend class Data::Node;
+			  friend class Data::Extension
 				Data::Node * actualNodes;
-			public:
-			  	Node(NodeID,Universal::Node *);
-			  	~Node();
-				Data::Node &access();
+			protected:
 				void populateChanges(Data::Property& changes) ;
  				void populateNewChild(std::shared_ptr<Universal::Node>) ;
 				void populateRemovedChild(NodeID id) ;
 				void populateExtension(std::shared_ptr<Universal::Extension>) ;
-				void populateMove(Node *newParent) ;
+				void populateMove(Node& newParent) ;
 				void populateNewID(NodeID newID);
 				void populateReduction(ExtensionTypeID) ;
+			public:
+			  	Node(NodeID,Universal::Node *);
+			  	~Node();
+				Data::Node &access();
+
 
 
 
@@ -64,6 +70,7 @@ namespace Data{
 				Data::Extension **actualExtensions;
 				ExtensionTypeID Type;
 				Universal::Node& Node;
+				void populateMove(Universal::Node&);
 
 			public:
 				Extension(Universal::Node&,ExtensionTypeID type);
@@ -98,7 +105,7 @@ namespace Data{
 			void extend(ExtensionTypeID);
 			void reduce(ExtensionTypeID);
 			NodeID addChild();
-			NodeID move(Universal::Node *newParent);
+			NodeID move(Universal::Node &newParent);
 			void removeChild(NodeID id);
 			Universal::Extension *getExtension(ExtensionTypeID);
 			Universal::Node& getUniversal();
@@ -119,14 +126,18 @@ namespace Data{
 		  friend class Node;
 		  friend class Universal::Node;
 		  friend class Universal::Extension;
-		protected:
-			Universal::Node& Node;
+		private:
+			Universal::Node *Node;
 			Universal::Extension& Universal;
-			Extension(Universal::Node&,Universal::Extension&);
+			void local_move(Universal::Node& newNode);
 		public:
-			virtual ~Extension();
-			Universal::Node& getUniversal();
-			virtual void sync(Extension &extension) = 0;
+			Extension(Universal::Node&,Universal::Extension&);
+			virtual ~Extension() = default;
+			Universal::Extension& getUniversal();
+			Universal::Node& getNode();
+			void sync(Property *);
+			void move(Universal::Node& newNode);
+			virtual void sync(Property&) = 0;
 
 	};
 

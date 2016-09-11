@@ -78,14 +78,14 @@ namespace Data{
 				Property res = Property(populate_remove_child,tmp);
 				populateChanges(res);
 			}
-			void Node::populateMove(Node * newParent){
+			void Node::populateMove(Node& newParent){
 				ClonableWrapper<Node *> * tmp = new ClonableWrapper<Node *>(newParent);
 				Property res = Property(populate_move_node,tmp);
 				populateChanges(res);
 			}
 			void Node::populateNewID(NodeID newID){
 				ClonableWrapper<NodeID> * tmp = new ClonableWrapper<NodeID>(newID);
-				Property res = Property(populate_new_id,tmp);
+				Property res = Property(populate_new_node_id,tmp);
 				populateChanges(res);
 			}
 
@@ -121,6 +121,24 @@ namespace Data{
 					i++;
 				}
 			}
+			void Extension::populateChanges(Data::Property& changes){
+
+				uint_fast8_t i = 0;
+				while(i < Thread::Amount){
+					if(i==ThreadID){
+						i++;
+						continue;
+					}
+					actualExtensions[i]->notify(changes);
+					i++;
+				}
+			}
+			void Extension::populateMove(Universal::Node& newNode){
+				ClonableWrapper<Universal::Node *> * tmp = new ClonableWrapper<Universal::Node *>(newNode);
+				Property res = Property(populate_move_extension,tmp);
+				populateChanges(res);
+			}
+
 
 			Universal::Node& Extension::getNode(){
 				return Node;
@@ -208,8 +226,8 @@ namespace Data{
 
 			return nullptr;
 		}
-		NodeID Node::move(Universal::Node *newParent){
-			newParent->access().addChild(parent->access().getChildOwnership(ID));
+		NodeID Node::move(Universal::Node &newParent){
+			newParent.access().addChild(parent->access().getChildOwnership(ID));
 			parent->access().removeChild(ID);
 			parent = newParent;
 			if(ID<parent->access().ID)ID = nextNodeID();
@@ -229,7 +247,7 @@ namespace Data{
 				local_removeChild(((ClonableWrapper<NodeID> *)prop->data)->data);
 			}else if(prop->name==populate_move_node){
 				parent = (((ClonableWrapper<Universal::Node *> *)prop->data)->data);
-			}else if(prop->name==populate_new_id){
+			}else if(prop->name==populate_new_node_id){
 				ID = ((ClonableWrapper<NodeID> *)prop->data)->data;
 			}
 		}
@@ -252,16 +270,44 @@ namespace Data{
 		std::string Node::getTypeName(){
 			return "Data::Node";
 		}
-		//TODO implement cloneing
+		//TODO implement cloning
 		Clonable* Node::clone(){
 			return nullptr;
 		}
-		void Node::clone(Clonable *){
-
+		//DOES NOT CLONE DUE CHANGES
+		void Node::clone(Clonable *dest){
+			if(dest->getTypeName().compare(getTypeName()))return;
+			Node *res = (Node *)dest;
+			res->ID = ID;
+			res->Universal = Universal; //TODO clone universal
+			res->parent = parent;
+			//TODO clone extensions and children
 		}
 
 
-
+		Extension::Extension(Universal::Node& node,Universal::Extension& universal): Node(node),Universal(universal) {}
+		Universal::Extension& Extension::getUniversal(){
+			return Universal;
+		}
+		Universal::Node& Extension::getNode(){
+			return Node;
+		}
+		void Extension::sync(Property *p){
+				if(p->name == populate_move_extension){
+					local_move(*((ClonableWrapper<Universal::Node *> *)p->data)->data);
+				}
+				sync(*p);
+		}
+		void Data::Extension::move(Universal::Node& newNode){
+			local_move(newNode);
+			getUniversal().populateMove(newNode);
+		}
+		void Data::Extension::local_move(Universal::Node& newNode){
+			auto iterator = Node->access().extensions.find(Universal.Type);
+			newNode.access().extensions.emplace(iterator->second);
+			Node->access().extensions.erase(iterator);
+			Node = newNode;
+		}
 
 
 
