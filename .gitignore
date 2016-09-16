@@ -20,3 +20,8 @@
 *.out
 *.app
 /Debug/
+CoreEngine/.settings/org.eclipse.cdt.core.prefs
+CoreEngine/.project
+CoreEngine/.settings/org.eclipse.cdt.codan.core.prefs
+CoreEngine/.settings/language.settings.xml
+CoreEngine/.cproject

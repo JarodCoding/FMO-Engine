@@ -1,5 +1,4 @@
 #include "../Data/Data.hpp"
-
 int main(){
 	Data::Universal::Node &topNode = Data::getTopNode();
 	topNode.access().addChild();

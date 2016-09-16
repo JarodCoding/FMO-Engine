@@ -7,6 +7,10 @@
 
 #ifndef COREENGINE_SRC_EXECUTION_MODULE_HPP_
 #define COREENGINE_SRC_EXECUTION_MODULE_HPP_
+namespace Execution {
+	typedef uint8_t ModuleID;
+	class Module;
+}
 
 namespace Execution {
 

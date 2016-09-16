@@ -5,7 +5,72 @@
  *      Author: Pascal Kuthe
  */
 #include "TaskManager.hpp"
-/*#pragma once
+#include "../Data/Data.hpp"
+#include "boost/lockfree/queue.hpp"
+#include "Flags.hpp"
+namespace Thread{
+	uint_fast8_t Amount = boost::thread::hardware_concurrency();//TODO threadAmount optimisation
+}
+namespace Execution{
+	namespace TaskManager{
+	boost::lockfree::queue<Task *> normalQueue = boost::lockfree::queue<Task *>();
+	boost::lockfree::queue<Task *> priorityQueue = boost::lockfree::queue<Task *>();
+	boost::lockfree::queue<Task *> eventQueue = boost::lockfree::queue<Task *>();
+	void queueTask(Task& t){
+		if(t.dependencies != 0)return;
+		switch(t.priority){
+			case 0:
+				eventQueue.push(t);
+				break;
+			case 1:
+				priorityQueue.push(t);
+				priorityAmount++;
+				break;
+			case 2:
+				eventQueue.push(t);
+				normalAmount++;
+		}
+	}
+	void start(){
+		running = true;
+		for(int i = 0;i < Thread::Amount;i++){
+			boost::thread(work);
+		}
+	}
+	void shutdown(){
+		running = false;
+	}
+	std::unordered_map<boost::thread::id,ThreadID> idMapping;
+	ThreadID getCurrentThreadID(){
+
+	}
+	std::atomic<bool> running;
+	void work(){
+		Task * current;
+		while(running){
+			if(eventQueue.pop(current)){
+				eventThreads++;
+			}else if(workPriority()&&priorityQueue.pop(current)){
+				priorityThreads++;
+				priorityAmount--;
+			}else if(normalQueue.pop(current)){
+				normalAmount--;
+			}else continue;
+			Data::getTopNode().access().syncNode(current->getExtensionOfInterest());
+			current->run();
+		}
+	}
+	std::atomic<uint_fast8_t> eventThreads;
+	std::atomic<uint_fast8_t> priorityThreads;
+	std::atomic<uint_fast8_t> normalAmount;
+	std::atomic<uint_fast8_t> priorityAmount;
+	bool workPriority(){
+		if(Thread::Amount-eventThreads/priorityThreads<(normalAmount+priorityAmount)/priorityAmount)return true;
+
+	}
+	}
+}
+/*
 
 //Std includes
 #include "stdint.h"
