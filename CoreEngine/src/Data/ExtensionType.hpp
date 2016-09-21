@@ -8,11 +8,13 @@
 #ifndef COREENGINE_SRC_DATA_EXTENSIONTYPE_HPP_
 #define COREENGINE_SRC_DATA_EXTENSIONTYPE_HPP_
 #include <stdint.h>
-
-#include "Data.hpp"
 namespace Data{
 	typedef uint_fast32_t ExtensionTypeID;
+}
+#include "Data.hpp"
+namespace Data{
 	typedef Data::Extension *(*ExtensionInitFunction)(Universal::Node&,Universal::Extension&);
+
 
 	namespace ExtensionType{
 	extern ExtensionTypeID registerExtensionType(ExtensionInitFunction,std::string);

@@ -8,15 +8,14 @@
 #include "Data.hpp"
 #include "ClonableWrapper.hpp"
 #include "ExtensionType.hpp"
-#include "../Execution/Flags.hpp"
 #include <type_traits>
+#include <atomic>
 
 namespace Data{
-	unsigned int ThreadID = 0; //TODO get actual thread id
-	NodeID currentID = 0;
+	std::atomic<NodeID> currentID;
 	std::unique_ptr<Universal::Node> topNode = std::make_unique<Universal::Node>(0,nullptr);
 	NodeID nextNodeID(){
-		return __sync_add_and_fetch (&currentID,1);
+		return currentID++;
 
 	}
 
@@ -41,14 +40,19 @@ namespace Data{
 		}
 		Data::Node &Node::access(){
 
-			return actualNodes[ThreadID];
+			return actualNodes[Execution::TaskManager::getCurrentThreadID()];
+		}
+
+		Data::Node &Node::access(Thread::ID t_id){
+
+			return actualNodes[t_id];
 		}
 		void Node::populateChanges(Data::Property& changes){
 
 			uint_fast8_t i = 0;
-
+			Thread::ID t_id = Execution::TaskManager::getCurrentThreadID();
 			while(i < Thread::Amount){
-				if(i==ThreadID){
+				if(i==t_id){
 					i++;
 					continue;
 				}
@@ -58,6 +62,19 @@ namespace Data{
 			}
 
 		}
+		void Node::populateChanges(Data::Property& changes,Thread::ID t_id){
+			uint_fast8_t i = 0;
+			while(i < Thread::Amount){
+				if(i==t_id){
+					i++;
+					continue;
+				}
+
+				actualNodes[i].notify(changes);
+				i++;
+			}
+		}
+
 			void Node::populateExtension(std::shared_ptr<Universal::Extension> NewExtension){
 				ClonableWrapper<std::shared_ptr<Universal::Extension>> * tmp = new ClonableWrapper<std::shared_ptr<Universal::Extension>>(NewExtension);
 				Property res = Property(populate_new_extension,tmp);
@@ -79,16 +96,25 @@ namespace Data{
 				populateChanges(res);
 			}
 			void Node::populateMove(Node& newParent){
-				ClonableWrapper<Node *> * tmp = new ClonableWrapper<Node *>(newParent);
+				ClonableWrapper<Node *> * tmp = new ClonableWrapper<Node *>(&newParent);
 				Property res = Property(populate_move_node,tmp);
 				populateChanges(res);
+			}
+			void Node::populateMove(Node& newParent,Thread::ID t_id){
+				ClonableWrapper<Node *> * tmp = new ClonableWrapper<Node *>(&newParent);
+				Property res = Property(populate_move_node,tmp);
+				populateChanges(res,t_id);
 			}
 			void Node::populateNewID(NodeID newID){
 				ClonableWrapper<NodeID> * tmp = new ClonableWrapper<NodeID>(newID);
 				Property res = Property(populate_new_node_id,tmp);
 				populateChanges(res);
 			}
-
+			void Node::populateNewID(NodeID newID,Thread::ID t_id){
+				ClonableWrapper<NodeID> * tmp = new ClonableWrapper<NodeID>(newID);
+				Property res = Property(populate_new_node_id,tmp);
+				populateChanges(res,t_id);
+			}
 
 			//Extension
 
@@ -106,14 +132,19 @@ namespace Data{
 
 			Data::Extension *Extension::access(){
 
-				return actualExtensions[ThreadID];
+				return actualExtensions[Execution::TaskManager::getCurrentThreadID()];
+			}
+			Data::Extension *Extension::access(Thread::ID t_id){
+
+				return actualExtensions[t_id];
 			}
 
 			void Extension::populateChanges(Data::Property& changes){
 
 				uint_fast8_t i = 0;
+				Thread::ID t_id = Execution::TaskManager::getCurrentThreadID();
 				while(i < Thread::Amount){
-					if(i==ThreadID){
+					if(i==t_id){
 						i++;
 						continue;
 					}
@@ -121,11 +152,11 @@ namespace Data{
 					i++;
 				}
 			}
-			void Extension::populateChanges(Data::Property& changes){
+			void Extension::populateChanges(Data::Property& changes,Thread::ID t_id){
 
 				uint_fast8_t i = 0;
 				while(i < Thread::Amount){
-					if(i==ThreadID){
+					if(i==t_id){
 						i++;
 						continue;
 					}
@@ -134,9 +165,14 @@ namespace Data{
 				}
 			}
 			void Extension::populateMove(Universal::Node& newNode){
-				ClonableWrapper<Universal::Node *> * tmp = new ClonableWrapper<Universal::Node *>(newNode);
+				ClonableWrapper<Universal::Node *> * tmp = new ClonableWrapper<Universal::Node *>(&newNode);
 				Property res = Property(populate_move_extension,tmp);
 				populateChanges(res);
+			}
+			void Extension::populateMove(Universal::Node& newNode,Thread::ID t_id){
+				ClonableWrapper<Universal::Node *> * tmp = new ClonableWrapper<Universal::Node *>(&newNode);
+				Property res = Property(populate_move_extension,tmp);
+				populateChanges(res,t_id);
 			}
 
 
@@ -168,12 +204,12 @@ namespace Data{
 		bool Node::local_reduce(ExtensionTypeID type){
 			return extensions.erase(type)>0;
 		}
-	NodeID Node::addChild(){
+	Universal::Node& Node::addChild(){
 		NodeID id = nextNodeID();
 		std::shared_ptr<Universal::Node> newChild = std::make_shared<Universal::Node>(id,parent);
 		local_addChild(newChild);
 		Universal.populateNewChild(newChild);
-		return id;
+		return *newChild.get();
 	}
 	void Node::addChild(std::shared_ptr<Universal::Node> newChild){
 		local_addChild(newChild);
@@ -185,6 +221,13 @@ namespace Data{
 
 	void Node::removeChild(NodeID id){
 		if(local_removeChild(id))Universal.populateRemovedChild(id);
+	}
+	void Node::removeChild(std::unordered_map<NodeID,std::shared_ptr<Universal::Node>>::iterator i){
+		Universal.populateRemovedChild(i->first);
+		children.erase(i);
+	}
+	void Node::destroy(){
+		parent->access().removeChild(ID);
 	}
 		bool Node::local_removeChild(NodeID id){
 			return children.erase(id)>0;
@@ -227,16 +270,16 @@ namespace Data{
 			return nullptr;
 		}
 		NodeID Node::move(Universal::Node &newParent){
-			newParent.access().addChild(parent->access().getChildOwnership(ID));
-			parent->access().removeChild(ID);
-			parent = newParent;
-			if(ID<parent->access().ID)ID = nextNodeID();
-			Universal.populateMove(newParent);
-			Universal.populateNewID(ID);
+			Thread::ID t_id = Execution::TaskManager::getCurrentThreadID();
+			newParent.access(t_id).addChild(parent->access().getChildOwnership(ID));
+			parent->access(t_id).removeChild(ID);
+			parent = &newParent;
+			if(ID<parent->access(t_id).ID)ID = nextNodeID();
+			Universal.populateMove(newParent,t_id);
+			Universal.populateNewID(ID,t_id);
 			return ID;
 		}
 		void Node::sync(Property *prop){
-
 			if(prop->name==populate_new_child){
 							local_addChild(((ClonableWrapper<std::shared_ptr<Universal::Node>> *)prop->data)->data);
 			}else if(prop->name==populate_new_extension){
@@ -251,7 +294,7 @@ namespace Data{
 				ID = ((ClonableWrapper<NodeID> *)prop->data)->data;
 			}
 		}
-		void Node::syncNode(std::vector<ExtensionTypeID> sortedExtensionsOfInterest){
+		void Node::syncNode(std::vector<ExtensionTypeID>& sortedExtensionsOfInterest){
 			syncAll();
 			size_t i = 0;
 			auto extensionIterator = extensions.begin();
@@ -285,12 +328,12 @@ namespace Data{
 		}
 
 
-		Extension::Extension(Universal::Node& node,Universal::Extension& universal): Node(node),Universal(universal) {}
+		Extension::Extension(Universal::Node& node,Universal::Extension& universal): Node(&node),Universal(universal) {}
 		Universal::Extension& Extension::getUniversal(){
 			return Universal;
 		}
 		Universal::Node& Extension::getNode(){
-			return Node;
+			return *Node;
 		}
 		void Extension::sync(Property *p){
 				if(p->name == populate_move_extension){
@@ -299,14 +342,19 @@ namespace Data{
 				sync(*p);
 		}
 		void Data::Extension::move(Universal::Node& newNode){
-			local_move(newNode);
-			getUniversal().populateMove(newNode);
+			Thread::ID t_id = Execution::TaskManager::getCurrentThreadID();
+			auto iterator = Node->access(t_id).extensions.find(Universal.Type);
+			newNode.access(t_id).extensions.emplace(Universal.Type,iterator->second);
+			Node->access(t_id).extensions.erase(iterator);
+			Node = &newNode;
+			getUniversal().populateMove(newNode,t_id);
 		}
 		void Data::Extension::local_move(Universal::Node& newNode){
-			auto iterator = Node->access().extensions.find(Universal.Type);
-			newNode.access().extensions.emplace(iterator->second);
-			Node->access().extensions.erase(iterator);
-			Node = newNode;
+			Thread::ID t_id = Execution::TaskManager::getCurrentThreadID();
+			auto iterator = Node->access(t_id).extensions.find(Universal.Type);
+			newNode.access(t_id).extensions.emplace(Universal.Type,iterator->second);
+			Node->access(t_id).extensions.erase(iterator);
+			Node = &newNode;
 		}
 
 

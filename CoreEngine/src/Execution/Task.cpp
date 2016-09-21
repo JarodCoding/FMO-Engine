@@ -10,6 +10,7 @@
 namespace Execution {
 	void Task::run(){
 		if(dependencies != 0)return;
+		running = true;
 		//run
 		if(parameter == nullptr)
 			reinterpret_cast<void(*)()>(function)();
@@ -17,18 +18,29 @@ namespace Execution {
 			return reinterpret_cast<void(*)(void *)>(function)(parameter);
 		//finish
 		for(Task& t:dependers){
-			if(__sync_sub_and_fetch(&t.dependencies,1)==0);//Add t to TaskManager
+			if((--t.dependencies)==0)Execution::TaskManager::queueTask(t);
 		}
+		running = false;
 	}
 	void Task::addDependency(Task& t){
-		t.dependers.push_back(*this);
-		__sync_add_and_fetch(&dependencies,1);
+		if(running)
+			#ifdef DEBUG throw "Task is Already Running can't add dependencies";
+			#else
+			return;
+			#endif;
+		t.dependers.push(this);
+		dependencies++;
+	}
+	void Task::addDependency(Execution::Util::CallbackFuture t){
+		()
+		t.callbackFunction(;
+		dependencies++;
 	}
 	void Task::registerExtensionsOfInterest(std::vector<Data::ExtensionTypeID>& eof){
 		std::sort(eof.begin(),eof.end());
 		extensionOfInterest = eof;
 	}
-	std::vector<Data::ExtensionTypeID> Task::getExtensionOfInterest(){
+	std::vector<Data::ExtensionTypeID>& Task::getExtensionOfInterest(){
 		return extensionOfInterest;
 	}
 } /* namespace Execution */

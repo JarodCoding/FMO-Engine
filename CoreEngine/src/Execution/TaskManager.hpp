@@ -8,15 +8,24 @@
 #define TASKMANAGER_HPP_
 #include "boost/thread.hpp"
 #include <stdint.h>
+#include "Flags.hpp"
+namespace Thread{
+	typedef uint_fast8_t ID;
+}
 #include "Task.hpp"
+
 namespace Execution{
 	namespace TaskManager{
-	typedef uint_fast8_t ThreadID;
 
 		void queueTask(Task&);
+		void queueTask(std::shared_ptr<Task> &t);
+		void queueTask(void(*func)(),ExecutionPriority);
+
 		void start();
 		void shutdown();
-		ThreadID getCurrentThreadID();
+		void togglePrimaryQueue(bool enabled);
+		bool primaryQueueEnable();
+		Thread::ID getCurrentThreadID();
 	}
 }
 #endif /* TASKMANAGER_HPP_ */

@@ -13,19 +13,10 @@
 #include <memory>
 #include <unordered_map>
 #include <map>
-#define populate_new_extension "pne"
-#define populate_remove_extension "prme"
-#define populate_new_child "pnc"
-#define populate_remove_child "prmc"
-#define populate_move_node "pmn"
-#define populate_new_node_id "pnni"
-#define populate_move_extension "pme"
 
+//forward defitions
 namespace Data{
-	extern unsigned int ThreadID; //TODO get actual thread id
-
 	typedef uint_fast64_t NodeID	 ; // creation thread id + InThread UUID (incremental
-	typedef uint_fast32_t ExtensionTypeID;
 	typedef uint_fast8_t LocalID;
 
 	class Node;
@@ -36,13 +27,29 @@ namespace Data{
 		class Node;
 		class Extension;
 	}
+}
+#define populate_new_extension "pne"
+#define populate_remove_extension "prme"
+#define populate_new_child "pnc"
+#define populate_remove_child "prmc"
+#define populate_move_node "pmn"
+#define populate_new_node_id "pnni"
+#define populate_move_extension "pme"
+
+#include "ExtensionType.hpp"
+#include "../Execution/TaskManager.hpp"
+
+
+namespace Data{
+
+
 	namespace Universal{
 
 		class Node{
 			private:
 			  friend class Extension;
 			  friend class Data::Node;
-			  friend class Data::Extension
+			  friend class Data::Extension;
 				Data::Node * actualNodes;
 			protected:
 				void populateChanges(Data::Property& changes) ;
@@ -51,11 +58,15 @@ namespace Data{
 				void populateExtension(std::shared_ptr<Universal::Extension>) ;
 				void populateMove(Node& newParent) ;
 				void populateNewID(NodeID newID);
+				void populateNewID(NodeID newID,Thread::ID t_id);
 				void populateReduction(ExtensionTypeID) ;
+				void populateChanges(Data::Property& changes,Thread::ID) ;
+				void populateMove(Node& newParent,Thread::ID) ;
 			public:
 			  	Node(NodeID,Universal::Node *);
 			  	~Node();
 				Data::Node &access();
+				Data::Node &access(Thread::ID);
 
 
 
@@ -71,6 +82,7 @@ namespace Data{
 				ExtensionTypeID Type;
 				Universal::Node& Node;
 				void populateMove(Universal::Node&);
+				void populateMove(Universal::Node&,Thread::ID);
 
 			public:
 				Extension(Universal::Node&,ExtensionTypeID type);
@@ -78,7 +90,10 @@ namespace Data{
 				Universal::Node& getNode();
 				ExtensionTypeID getType();
 				Data::Extension *access();
+				Data::Extension *access(Thread::ID currentID);
 				void populateChanges(Data::Property& changes) ;
+				void populateChanges(Data::Property& changes,Thread::ID) ;
+
 		};
 
 	}
@@ -104,9 +119,11 @@ namespace Data{
 		  	~Node() = default;
 			void extend(ExtensionTypeID);
 			void reduce(ExtensionTypeID);
-			NodeID addChild();
+			Universal::Node& addChild();
 			NodeID move(Universal::Node &newParent);
 			void removeChild(NodeID id);
+			void removeChild(std::unordered_map<NodeID,std::shared_ptr<Universal::Node>>::iterator);
+			void destroy();
 			Universal::Extension *getExtension(ExtensionTypeID);
 			Universal::Node& getUniversal();
 			Universal::Node *getParent();
@@ -115,7 +132,7 @@ namespace Data{
 			//very resource intensive should only be called if performance is of no concern
 			Universal::Node *searchForNode(NodeID id);
 			void sync(Property *);
-			void syncNode(std::vector<ExtensionTypeID> sortedExtensionsOfInterest);
+			void syncNode(std::vector<ExtensionTypeID>& sortedExtensionsOfInterest);
 			std::string getTypeName();
 			Clonable* clone();
 			void clone(Clonable *);

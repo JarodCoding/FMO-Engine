@@ -12,7 +12,7 @@ release: link += -Ofast
 release: CoreEngine
 	$(link) -o bin$(seperator)CoreEngine.dll $(OBJS) //TODO implement proper dll creation and entry functions
 
-debug: compile += -Og-g3
+debug: compile += -Og -g3
 debug: link += -Og -g3
 debug: CoreEngine $(TestOBJS)
 	$(link) -o bin$(seperator)Test.exe $(OBJS) $(TestOBJS)

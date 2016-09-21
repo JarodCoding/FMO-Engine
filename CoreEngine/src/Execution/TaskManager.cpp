@@ -7,18 +7,17 @@
 #include "TaskManager.hpp"
 #include "../Data/Data.hpp"
 #include "boost/lockfree/queue.hpp"
-#include "Flags.hpp"
 namespace Thread{
 	uint_fast8_t Amount = boost::thread::hardware_concurrency();//TODO threadAmount optimisation
 }
 namespace Execution{
 	namespace TaskManager{
-	boost::lockfree::queue<Task *> normalQueue = boost::lockfree::queue<Task *>();
-	boost::lockfree::queue<Task *> priorityQueue = boost::lockfree::queue<Task *>();
-	boost::lockfree::queue<Task *> eventQueue = boost::lockfree::queue<Task *>();
-	void queueTask(Task& t){
-		if(t.dependencies != 0)return;
-		switch(t.priority){
+	boost::lockfree::queue<std::shared_ptr<Task> *> normalQueue = boost::lockfree::queue<std::shared_ptr<Task> *>();
+	boost::lockfree::queue<std::shared_ptr<Task> *> priorityQueue = boost::lockfree::queue<std::shared_ptr<Task> *>();
+	boost::lockfree::queue<std::shared_ptr<Task> *> eventQueue = boost::lockfree::queue<std::shared_ptr<Task> *>();
+	void queueTask(std::shared_ptr<Task> *t){
+		if(t->get()->dependencies != 0)return;
+		switch(t->get()->priority){
 			case 0:
 				eventQueue.push(t);
 				break;
@@ -27,46 +26,73 @@ namespace Execution{
 				priorityAmount++;
 				break;
 			case 2:
-				eventQueue.push(t);
+				normalQueue.push(t);
 				normalAmount++;
 		}
 	}
 	void start(){
 		running = true;
-		for(int i = 0;i < Thread::Amount;i++){
-			boost::thread(work);
+		for(Thread::ID i = 0;i < Thread::Amount;i++){
+			boost::thread(work,i);
 		}
 	}
 	void shutdown(){
 		running = false;
 	}
-	std::unordered_map<boost::thread::id,ThreadID> idMapping;
-	ThreadID getCurrentThreadID(){
-
+	std::unordered_map<boost::thread::id,Thread::ID > idMapping;
+	Thread::ID getCurrentThreadID(){
+		return ThreadIDMAppings.at(boost::this_thread::get_id());
 	}
+	std::unordered_map<boost::thread::id,Thread::ID > ThreadIDMAppings;
+	boost::mutex ThreadStartupLock = boost::mutex();
 	std::atomic<bool> running;
-	void work(){
-		Task * current;
+	void work(Thread::ID id){
+		ThreadStartupLock.lock();
+		ThreadIDMAppings.emplace(boost::this_thread::get_id(),id);
+		ThreadStartupLock.unlock();
+		std::shared_ptr<Task> * current = nullptr;
 		while(running){
 			if(eventQueue.pop(current)){
 				eventThreads++;
-			}else if(workPriority()&&priorityQueue.pop(current)){
-				priorityThreads++;
-				priorityAmount--;
+				Data::getTopNode().access().syncNode(current->get()->getExtensionOfInterest());
+				current->get()->run();
+				eventThreads--;
+			}else if(workPriority()){
+				if(priorityQueue.pop(current)){
+					priorityThreads++;
+					priorityAmount--;
+					Data::getTopNode().access().syncNode(current->get()->getExtensionOfInterest());
+					current->get()->run();
+					priorityThreads--;
+				}else{
+					//TODO new Cycle
+				}
 			}else if(normalQueue.pop(current)){
+				Data::getTopNode().access().syncNode(current->get()->getExtensionOfInterest());
+				current->get()->run();
 				normalAmount--;
-			}else continue;
-			Data::getTopNode().access().syncNode(current->getExtensionOfInterest());
-			current->run();
+			}
+			//make sure object is deleted
+			if(current!=nullptr){
+				delete current;
+				current = nullptr;
+			}
 		}
+	}
+	std::atomic<bool> primaryAktive;
+	void togglePrimaryQueue(bool enabled){
+		primaryAktive = enabled;
+	}
+	bool primaryQueueEnable(){
+		return primaryAktive;
 	}
 	std::atomic<uint_fast8_t> eventThreads;
 	std::atomic<uint_fast8_t> priorityThreads;
 	std::atomic<uint_fast8_t> normalAmount;
 	std::atomic<uint_fast8_t> priorityAmount;
 	bool workPriority(){
-		if(Thread::Amount-eventThreads/priorityThreads<(normalAmount+priorityAmount)/priorityAmount)return true;
-
+		if(priorityThreads/Thread::Amount-eventThreads>priorityAmount/(normalAmount+priorityAmount)||priorityThreads < 1)return primaryAktive;
+		return false;
 	}
 	}
 }
@@ -307,7 +333,7 @@ void removeTask(TaskID id){
 		}
 		if(i < 0){
 			//If we end up here something went horribly wrong! So we are going to report it in all depths. This would be an absouloudly devestating bug wich would break the entire Engine!
-			std::cerr << "Insertion of ThreadID "<<id << " into the FreeID list{";
+			std::cerr << "Insertion of Thread::ID "<<id << " into the FreeID list{";
 			int i = 0;
 			while(i < FreeIds->size()){
 				std::cerr << FreeIds->at(i++);

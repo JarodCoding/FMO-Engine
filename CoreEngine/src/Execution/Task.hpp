@@ -10,27 +10,32 @@
 #include "vector"
 
 namespace Execution {
-typedef uint_fast8_t ExecutionPriority;
-class Task;
+	typedef uint_fast8_t ExecutionPriority;
+	class Task;
 }
 
-#include "../Data/Data.hpp"
+#include "../Data/ExtensionType.hpp"
 #include "Module.hpp"
+#include "atomic"
+#include "TaskManager.hpp"
 
 namespace Execution {
 
 class Task {
 protected:
-	std::vector<Task&> dependers;
-	volatile uint_fast8_t dependencies;
+	boost::lockfree::queue<Task *> dependers;
+	std::atomic<uint_fast8_t> dependencies;
 	std::vector<Data::ExtensionTypeID> extensionOfInterest;
+	std::atomic<bool> running;
 public:
 	void *function;
 	void * parameter;
 	ExecutionPriority priority;
 	void run();
+	//ThreadSafe
 	void addDependency(Task&);
-	std::vector<Data::ExtensionTypeID> getExtensionOfInterest();
+	void addDependency(Task&);
+	std::vector<Data::ExtensionTypeID>& getExtensionOfInterest();
 	void registerExtensionsOfInterest(std::vector<Data::ExtensionTypeID>&);
 };
 
