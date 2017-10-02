@@ -13,75 +13,96 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
     </Filter>
+    <Filter Include="Header Files\deprecated">
+      <UniqueIdentifier>{86d1af7f-7a40-4643-bc25-245bbcbbf80c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\deprecated">
+      <UniqueIdentifier>{5a051265-87a0-43f0-8a82-d52fe172afd4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\CoreEngine">
+      <UniqueIdentifier>{160ac386-352e-4ff2-9fdb-58d7604f8e5e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\CoreEngine\Execution">
+      <UniqueIdentifier>{25cca27b-3a76-4e17-a253-eae113194f29}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\CoreEngine\Execution\Memory">
+      <UniqueIdentifier>{940a844b-dc0c-4222-b07a-79662d55ecb5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\data\Data.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\data\ExtensionType.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\data\Property.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\data\Syncable.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\execution\Module.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\execution\StateManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\execution\Task.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\execution\TaskManager.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\deprecated</Filter>
     </ClCompile>
     <ClCompile Include="src\execution\util\CallbackFuture.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\deprecated</Filter>
+    </ClCompile>
+    <ClCompile Include="src\data\Data.cpp">
+      <Filter>Source Files\deprecated</Filter>
     </ClCompile>
     <ClCompile Include="src\test\DataTest.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\deprecated</Filter>
+    </ClCompile>
+    <ClCompile Include="src\data\ExtensionType.cpp">
+      <Filter>Source Files\deprecated</Filter>
+    </ClCompile>
+    <ClCompile Include="src\execution\Module.cpp">
+      <Filter>Source Files\deprecated</Filter>
+    </ClCompile>
+    <ClCompile Include="src\data\Property.cpp">
+      <Filter>Source Files\deprecated</Filter>
+    </ClCompile>
+    <ClCompile Include="src\execution\StateManager.cpp">
+      <Filter>Source Files\deprecated</Filter>
+    </ClCompile>
+    <ClCompile Include="src\data\Syncable.cpp">
+      <Filter>Source Files\deprecated</Filter>
+    </ClCompile>
+    <ClCompile Include="src\execution\Task.cpp">
+      <Filter>Source Files\deprecated</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\execution\util\CallbackFuture.hpp">
+      <Filter>Header Files\deprecated</Filter>
+    </ClInclude>
     <ClInclude Include="src\data\Clonable.hpp">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\deprecated</Filter>
     </ClInclude>
     <ClInclude Include="src\data\ClonableWrapper.hpp">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\deprecated</Filter>
     </ClInclude>
     <ClInclude Include="src\data\Data.hpp">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\deprecated</Filter>
     </ClInclude>
     <ClInclude Include="src\data\ExtensionType.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\data\Property.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\data\Syncable.hpp">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\deprecated</Filter>
     </ClInclude>
     <ClInclude Include="src\execution\Flags.hpp">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\deprecated</Filter>
     </ClInclude>
     <ClInclude Include="src\execution\Module.hpp">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\deprecated</Filter>
+    </ClInclude>
+    <ClInclude Include="src\data\Property.hpp">
+      <Filter>Header Files\deprecated</Filter>
     </ClInclude>
     <ClInclude Include="src\execution\StateManager.hpp">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\deprecated</Filter>
+    </ClInclude>
+    <ClInclude Include="src\data\Syncable.hpp">
+      <Filter>Header Files\deprecated</Filter>
     </ClInclude>
     <ClInclude Include="src\execution\Task.hpp">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\deprecated</Filter>
     </ClInclude>
     <ClInclude Include="src\execution\TaskManager.hpp">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\deprecated</Filter>
     </ClInclude>
-    <ClInclude Include="src\execution\util\CallbackFuture.hpp">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="Managers.hpp">
+      <Filter>Header Files\CoreEngine\Execution\Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="Pointers.hpp">
+      <Filter>Header Files\CoreEngine\Execution\Memory</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
